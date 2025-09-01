@@ -1,0 +1,9 @@
+# Fallback for React Router (SPA)
+/*    /index.html   200
+
+# API redirects (if you add serverless functions later)
+/api/*  /.netlify/functions/:splat  200
+
+# Redirect old paths (examples - customize as needed)
+# /old-path  /new-path  301
+# /blog/*    /news/:splat  301

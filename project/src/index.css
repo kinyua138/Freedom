@@ -1,0 +1,316 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+  
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    @apply antialiased bg-gray-50;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 px-8 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-blue-300;
+  }
+  
+  .btn-secondary {
+    @apply bg-white hover:bg-gray-50 text-gray-800 font-semibold py-3 px-8 rounded-xl border-2 border-gray-200 hover:border-gray-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-gray-300;
+  }
+  
+  .card {
+    @apply bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1;
+  }
+  
+  .nav-link {
+    @apply text-gray-600 hover:text-blue-600 font-medium transition-colors duration-200 relative;
+  }
+  
+  .nav-link.active {
+    @apply text-blue-600;
+  }
+  
+  .nav-link.active::after {
+    @apply absolute -bottom-1 left-0 w-full h-0.5 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full;
+    content: '';
+  }
+}
+
+@layer utilities {
+  .text-gradient {
+    @apply bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent;
+  }
+  
+  .bg-gradient-primary {
+    @apply bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50;
+  }
+}
+
+/* Custom slider styles */
+.slider::-webkit-slider-thumb {
+  appearance: none;
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #8B5CF6, #3B82F6);
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
+
+.slider::-webkit-slider-thumb:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.slider::-moz-range-thumb {
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #8B5CF6, #3B82F6);
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Scrollbar styles */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(243, 244, 246, 0.5);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #8B5CF6, #3B82F6);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #7C3AED, #2563EB);
+}
+
+/* Canvas editor specific styles */
+.canvas-editor {
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+/* Prevent text selection during drag operations */
+.no-select {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Smooth transitions for canvas elements */
+.canvas-element {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.canvas-element:hover {
+  filter: brightness(1.05);
+}
+
+/* Custom resize handle styles */
+.resize-handle {
+  position: absolute;
+  background: white;
+  border: 2px solid #3B82F6;
+  border-radius: 3px;
+  width: 12px;
+  height: 12px;
+  z-index: 1000;
+  transition: all 0.2s ease;
+  touch-action: none;
+  user-select: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.resize-handle:hover {
+  background: #EFF6FF;
+  border-color: #2563EB;
+  transform: scale(1.25);
+  box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
+}
+
+/* Resizing state */
+body.resizing {
+  cursor: inherit !important;
+  user-select: none !important;
+}
+
+body.resizing * {
+  pointer-events: none !important;
+}
+
+body.resizing .resize-handle {
+  pointer-events: auto !important;
+}
+
+/* Selection ring animation */
+@keyframes selection-pulse {
+  0%, 100% { 
+    box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.5);
+  }
+  50% { 
+    box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.3);
+  }
+}
+
+.selected-element {
+  animation: selection-pulse 2s infinite;
+}
+
+/* Smooth zoom transitions */
+.canvas-container {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Grid fade effect based on zoom */
+.grid-overlay {
+  transition: opacity 0.3s ease;
+}
+
+/* Context menu animations */
+.context-menu {
+  animation: contextMenuAppear 0.2s ease-out;
+}
+
+@keyframes contextMenuAppear {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Toolbar button hover effects */
+.toolbar-button {
+  position: relative;
+  overflow: hidden;
+}
+
+.toolbar-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  transition: left 0.5s ease;
+}
+
+.toolbar-button:hover::before {
+  left: 100%;
+}
+/* Fix dragging cursor issues */
+.canvas-container * {
+  pointer-events: auto;
+}
+
+/* Component dragging styles */
+/* Canvas specific styles */
+.canvas-no-scroll {
+  touch-action: none;
+  overscroll-behavior: contain;
+  overflow: hidden;
+  position: relative;
+  overflow: hidden;
+}
+
+.canvas-container * {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+/* Prevent page scrolling when interacting with canvas */
+.canvas-container:hover {
+  overflow: hidden;
+}
+
+/* Panel resize styles */
+.panel-resize-handle {
+  position: relative;
+  z-index: 10;
+}
+
+.panel-resize-handle::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -2px;
+  right: -2px;
+  background: transparent;
+}
+
+.panel-resize-handle:hover::before {
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.panel-resize-handle:active::before {
+  background: rgba(59, 130, 246, 0.2);
+}
+
+/* Prevent text selection during resize */
+body.resizing-panels {
+  user-select: none !important;
+  cursor: col-resize !important;
+}
+
+body.resizing-panels * {
+  user-select: none !important;
+  pointer-events: none !important;
+}
+
+/* Resize handles */
+.resize-handle {
+  position: absolute;
+  background: #8B5CF6;
+  border: 2px solid white;
+  border-radius: 2px;
+  width: 8px;
+  height: 8px;
+  z-index: 1000;
+}
+
+.resize-handle:hover {
+  background: #7C3AED;
+  transform: scale(1.2);
+}
+
+/* Snap guides */
+.snap-guide {
+  position: absolute;
+  background: #8B5CF6;
+  pointer-events: none;
+  z-index: 100;
+  opacity: 0.8;
+}
+
+.snap-guide-vertical {
+  width: 1px;
+  height: 100%;
+}
+
+.snap-guide-horizontal {
+  width: 100%;
+  height: 1px;
+}

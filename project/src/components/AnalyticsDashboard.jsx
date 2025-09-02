@@ -5,8 +5,8 @@ import {
   ClockIcon,
   CubeIcon,
   UserIcon,
-  TrendingUpIcon,
-  TrendingDownIcon,
+  ArrowTrendingUpIcon,
+  ArrowTrendingDownIcon,
   CalendarIcon,
   DevicePhoneMobileIcon,
   ComputerDesktopIcon,
@@ -142,7 +142,7 @@ const AnalyticsDashboard = ({ className = '' }) => {
                       trend < 0 ? 'text-red-600 dark:text-red-400' : 
                       'text-gray-600 dark:text-slate-400';
     
-    const TrendIcon = trend > 0 ? TrendingUpIcon : TrendingDownIcon;
+    const TrendIcon = trend > 0 ? ArrowTrendingUpIcon : ArrowTrendingDownIcon;
 
     return (
       <div className="bg-white dark:bg-slate-800 p-6 rounded-xl border border-gray-200 dark:border-slate-700 hover:shadow-lg transition-shadow">
@@ -246,7 +246,7 @@ const AnalyticsDashboard = ({ className = '' }) => {
         <MetricCard
           title="Bounce Rate"
           value={analytics.overview.bounceRate}
-          icon={TrendingDownIcon}
+          icon={ArrowTrendingDownIcon}
           format="percentage"
         />
         <MetricCard

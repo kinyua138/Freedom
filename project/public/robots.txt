@@ -1,0 +1,14 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://your-domain.netlify.app/sitemap.xml
+
+# Disallow admin areas (if any)
+Disallow: /admin/
+Disallow: /_netlify/
+
+# Allow all crawlers to access CSS and JS files
+Allow: /assets/
+Allow: /*.css$
+Allow: /*.js$

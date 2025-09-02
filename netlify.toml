@@ -13,6 +13,28 @@
   NODE_VERSION = "18"
   # Enable CI mode
   CI = "true"
+  # MongoDB connection string
+  MONGODB_URI = "mongodb+srv://toshi:8ZMx6SKadZ5gMchQ@toshi.kjplpfe.mongodb.net/?retryWrites=true&w=majority&appName=toshi"
+  # JWT Secret for authentication
+  JWT_SECRET = "your-super-secret-jwt-key-change-this-in-production"
+  JWT_EXPIRES_IN = "7d"
+  # Optimize build performance
+  NPM_FLAGS = "--production"
+
+# Build processing
+[build.processing]
+  skip_processing = false
+
+[build.processing.css]
+  bundle = true
+  minify = true
+
+[build.processing.js]
+  bundle = true
+  minify = true
+
+[build.processing.html]
+  pretty_urls = true
 
 # SPA redirect rules for React Router
 [[redirects]]
@@ -20,22 +42,90 @@
   to = "/index.html"
   status = 200
 
-# Basic security headers
+# API proxy (if needed for development)
+[[redirects]]
+  from = "/api/*"
+  to = "https://your-api-domain.com/api/:splat"
+  status = 200
+  force = false
+
+# Comprehensive security headers
 [[headers]]
   for = "/*"
   [headers.values]
+    # Basic security
     X-Frame-Options = "DENY"
     X-Content-Type-Options = "nosniff"
     X-XSS-Protection = "1; mode=block"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    
+    # Content Security Policy
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https:; frame-ancestors 'none';"
+    
+    # HSTS (HTTP Strict Transport Security)
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload"
+    
+    # Permissions Policy
+    Permissions-Policy = "camera=(), microphone=(), geolocation=(), interest-cohort=()"
 
-# Cache static assets
+# Cache static assets aggressively
 [[headers]]
   for = "/assets/*"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
+    # Enable compression
+    Content-Encoding = "gzip, br"
+
+# Cache images
+[[headers]]
+  for = "*.{png,jpg,jpeg,gif,svg,webp,avif}"
+  [headers.values]
+    Cache-Control = "public, max-age=2592000"
+
+# Cache fonts
+[[headers]]
+  for = "*.{woff,woff2,ttf,eot}"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+    Access-Control-Allow-Origin = "*"
 
 # Don't cache HTML files
 [[headers]]
   for = "*.html"
   [headers.values]
     Cache-Control = "public, max-age=0, must-revalidate"
+
+# Cache manifest and service worker
+[[headers]]
+  for = "/manifest.json"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"
+
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+# Form handling (for contact forms)
+[forms]
+  # Enable Netlify Forms
+  netlify = true
+
+# Functions (if using Netlify Functions)
+[functions]
+  directory = "netlify/functions"
+
+# Plugin configuration
+[[plugins]]
+  package = "@netlify/plugin-lighthouse"
+  
+  [plugins.inputs.thresholds]
+    performance = 0.9
+    accessibility = 0.9
+    best-practices = 0.9
+    seo = 0.9
+
+# Edge handlers (for advanced routing)
+[[edge_functions]]
+  function = "hello"
+  path = "/api/hello"

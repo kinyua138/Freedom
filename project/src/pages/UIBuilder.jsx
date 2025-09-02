@@ -1,26 +1,38 @@
-import React, { useState } from 'react';
-import { Layers, Code, Palette, Eye } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Layers, Code, Palette, Eye, FolderIcon, SaveIcon } from 'lucide-react';
 import { Canvas } from '../components/ui-builder/Canvas';
 import { TemplatesPanel } from '../components/ui-builder/TemplatesPanel';
 import { PropertiesPanel } from '../components/ui-builder/PropertiesPanel';
 import PreviewModal from '../components/ui-builder/PreviewModal';
+import ProjectManager from '../components/ProjectManager';
+import { useProject } from '../contexts/ProjectContext';
+import { useTheme } from '../contexts/ThemeContext';
 
 const UIBuilder = () => {
+  const { currentProject, saveProject, setCurrentProject } = useProject();
+  const { currentTheme, isDark } = useTheme();
+  
   const [selectedComponent, setSelectedComponent] = useState(null);
   const [showPageManager, setShowPageManager] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
+  const [showProjectManager, setShowProjectManager] = useState(false);
   const [leftPanelWidth, setLeftPanelWidth] = useState(320);
   const [rightPanelWidth, setRightPanelWidth] = useState(320);
   const [isResizingLeft, setIsResizingLeft] = useState(false);
   const [isResizingRight, setIsResizingRight] = useState(false);
-  const [pages, setPages] = useState([
-    {
-      id: 'page-1',
-      name: 'Home',
-      components: [],
-      isActive: true
-    }
-  ]);
+  const [lastSaved, setLastSaved] = useState(null);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  
+  const [pages, setPages] = useState(
+    currentProject?.pages || [
+      {
+        id: 'page-1',
+        name: 'Home',
+        components: [],
+        isActive: true
+      }
+    ]
+  );
 
   const templates = [
     // Basic UI Components
@@ -139,6 +151,33 @@ const UIBuilder = () => {
     }
   ];
 
+  // Auto-save functionality
+  useEffect(() => {
+    if (currentProject && hasUnsavedChanges) {
+      const autoSaveTimer = setTimeout(() => {
+        handleSaveProject();
+      }, 30000); // Auto-save every 30 seconds
+
+      return () => clearTimeout(autoSaveTimer);
+    }
+  }, [pages, hasUnsavedChanges, currentProject]);
+
+  // Load project data when currentProject changes
+  useEffect(() => {
+    if (currentProject) {
+      setPages(currentProject.pages);
+      setLastSaved(new Date(currentProject.metadata.updatedAt));
+      setHasUnsavedChanges(false);
+    }
+  }, [currentProject]);
+
+  // Mark as having unsaved changes when pages change
+  useEffect(() => {
+    if (currentProject) {
+      setHasUnsavedChanges(true);
+    }
+  }, [pages]);
+
   // Get current active page
   const activePage = pages.find(page => page.isActive) || pages[0];
   const components = activePage?.components || [];
@@ -152,6 +191,44 @@ const UIBuilder = () => {
           : page
       )
     );
+  };
+
+  // Project management functions
+  const handleSaveProject = async () => {
+    if (!currentProject) return;
+
+    const success = saveProject(currentProject.id, {
+      pages: pages,
+      settings: {
+        theme: currentTheme,
+        responsive: true,
+        animations: true
+      }
+    });
+
+    if (success) {
+      setLastSaved(new Date());
+      setHasUnsavedChanges(false);
+    }
+  };
+
+  const handleProjectSelect = (project) => {
+    setCurrentProject(project);
+    setPages(project.pages);
+    setSelectedComponent(null);
+    setLastSaved(new Date(project.metadata.updatedAt));
+    setHasUnsavedChanges(false);
+  };
+
+  const formatLastSaved = () => {
+    if (!lastSaved) return 'Never';
+    const now = new Date();
+    const diff = Math.floor((now - lastSaved) / 1000);
+    
+    if (diff < 60) return 'Just now';
+    if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+    return lastSaved.toLocaleDateString();
   };
 
   const handleAddComponent = (component) => {
@@ -375,37 +452,76 @@ const UIBuilder = () => {
     <>
       <div className="h-screen w-screen bg-gradient-to-br from-slate-100 via-blue-50 to-purple-50 overflow-hidden">
         {/* Header */}
-        <header className="bg-white/90 backdrop-blur-md border-b border-gray-200/50 px-6 py-4 shadow-sm">
+        <header className={`bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-gray-200/50 dark:border-slate-700/50 px-6 py-4 shadow-sm transition-colors duration-200`}>
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-gradient-to-br from-purple-500 via-blue-500 to-indigo-500 rounded-xl flex items-center justify-center shadow-lg">
                 <Layers className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-                  UI Builder
-                </h1>
-                <p className="text-sm text-gray-600">Design beautiful interfaces with ease</p>
+                <div className="flex items-center space-x-2">
+                  <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+                    UI Builder
+                  </h1>
+                  {currentProject && (
+                    <span className="text-sm text-gray-600 dark:text-slate-400">
+                      - {currentProject.name}
+                    </span>
+                  )}
+                  {hasUnsavedChanges && (
+                    <span className="w-2 h-2 bg-orange-500 rounded-full animate-pulse" title="Unsaved changes" />
+                  )}
+                </div>
+                <p className="text-sm text-gray-600 dark:text-slate-400">
+                  {currentProject ? `Last saved: ${formatLastSaved()}` : 'Design beautiful interfaces with ease'}
+                </p>
               </div>
             </div>
             
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-3">
+              {/* Project Management */}
+              <button
+                onClick={() => setShowProjectManager(true)}
+                className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 hover:from-blue-200 hover:to-indigo-200 dark:hover:from-blue-800/40 dark:hover:to-indigo-800/40 border border-blue-200 dark:border-blue-700 rounded-lg transition-all duration-300 group"
+              >
+                <FolderIcon className="w-4 h-4 text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform duration-200" />
+                <span className="text-sm font-medium text-blue-700 dark:text-blue-300">Projects</span>
+              </button>
+
+              {/* Save Button */}
+              {currentProject && (
+                <button
+                  onClick={handleSaveProject}
+                  disabled={!hasUnsavedChanges}
+                  className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-300 group ${
+                    hasUnsavedChanges
+                      ? 'bg-gradient-to-r from-orange-100 to-yellow-100 dark:from-orange-900/30 dark:to-yellow-900/30 hover:from-orange-200 hover:to-yellow-200 dark:hover:from-orange-800/40 dark:hover:to-yellow-800/40 border border-orange-200 dark:border-orange-700'
+                      : 'bg-gray-100 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 opacity-50 cursor-not-allowed'
+                  }`}
+                >
+                  <SaveIcon className={`w-4 h-4 ${hasUnsavedChanges ? 'text-orange-600 dark:text-orange-400' : 'text-gray-400'} group-hover:scale-110 transition-transform duration-200`} />
+                  <span className={`text-sm font-medium ${hasUnsavedChanges ? 'text-orange-700 dark:text-orange-300' : 'text-gray-500'}`}>
+                    {hasUnsavedChanges ? 'Save' : 'Saved'}
+                  </span>
+                </button>
+              )}
+              
               {/* Preview Button */}
               <button
                 onClick={() => setShowPreview(true)}
-                className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-green-100 to-emerald-100 hover:from-green-200 hover:to-emerald-200 border border-green-200 rounded-lg transition-all duration-300 group"
+                className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 hover:from-green-200 hover:to-emerald-200 dark:hover:from-green-800/40 dark:hover:to-emerald-800/40 border border-green-200 dark:border-green-700 rounded-lg transition-all duration-300 group"
               >
-                <Eye className="w-4 h-4 text-green-600 group-hover:scale-110 transition-transform duration-200" />
-                <span className="text-sm font-medium text-green-700">Preview</span>
+                <Eye className="w-4 h-4 text-green-600 dark:text-green-400 group-hover:scale-110 transition-transform duration-200" />
+                <span className="text-sm font-medium text-green-700 dark:text-green-300">Preview</span>
               </button>
               
-              <div className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-purple-100 to-blue-100 rounded-lg border border-purple-200/50">
-                <Code className="w-4 h-4 text-purple-600" />
-                <span className="text-sm font-medium text-purple-700">{components.length} Components</span>
+              <div className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-purple-100 to-blue-100 dark:from-purple-900/30 dark:to-blue-900/30 rounded-lg border border-purple-200/50 dark:border-purple-700/50">
+                <Code className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                <span className="text-sm font-medium text-purple-700 dark:text-purple-300">{components.length} Components</span>
               </div>
-              <div className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-emerald-100 to-teal-100 rounded-lg border border-emerald-200/50">
-                <Palette className="w-4 h-4 text-emerald-600" />
-                <span className="text-sm font-medium text-emerald-700">
+              <div className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-emerald-100 to-teal-100 dark:from-emerald-900/30 dark:to-teal-900/30 rounded-lg border border-emerald-200/50 dark:border-emerald-700/50">
+                <Palette className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                <span className="text-sm font-medium text-emerald-700 dark:text-emerald-300">
                   {selectedComponent ? 'Editing' : 'Ready'}
                 </span>
               </div>
@@ -484,6 +600,13 @@ const UIBuilder = () => {
         isOpen={showPreview}
         onClose={() => setShowPreview(false)}
         components={components}
+      />
+
+      {/* Project Manager Modal */}
+      <ProjectManager
+        isOpen={showProjectManager}
+        onClose={() => setShowProjectManager(false)}
+        onProjectSelect={handleProjectSelect}
       />
     </>
   );

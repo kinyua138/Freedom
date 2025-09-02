@@ -4,13 +4,89 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Modern Landing Page</title>
+    
+    <!-- SEO Meta Tags -->
+    <title>Modern Landing Page - Beautiful React UI Builder</title>
+    <meta name="description" content="A modern, responsive landing page built with React, TypeScript, and Tailwind CSS. Features a powerful UI builder and beautiful design templates." />
+    <meta name="keywords" content="react, landing page, ui builder, typescript, tailwind css, modern design, responsive" />
+    <meta name="author" content="Modern Landing Page" />
+    <meta name="robots" content="index, follow" />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://your-domain.netlify.app/" />
+    <meta property="og:title" content="Modern Landing Page - Beautiful React UI Builder" />
+    <meta property="og:description" content="A modern, responsive landing page built with React, TypeScript, and Tailwind CSS. Features a powerful UI builder and beautiful design templates." />
+    <meta property="og:image" content="https://your-domain.netlify.app/og-image.jpg" />
+    <meta property="og:site_name" content="Modern Landing Page" />
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://your-domain.netlify.app/" />
+    <meta property="twitter:title" content="Modern Landing Page - Beautiful React UI Builder" />
+    <meta property="twitter:description" content="A modern, responsive landing page built with React, TypeScript, and Tailwind CSS. Features a powerful UI builder and beautiful design templates." />
+    <meta property="twitter:image" content="https://your-domain.netlify.app/og-image.jpg" />
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#3b82f6" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="ModernApp" />
+    
+    <!-- Apple Touch Icons -->
+    <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152x152.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-180x180.png" />
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="alternate icon" href="/favicon.ico" />
+    
+    <!-- Preconnect to external domains -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <!-- Font loading with display=swap for better performance -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Preload critical resources -->
+    <link rel="preload" href="/src/index.jsx" as="script" />
+    
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Modern Landing Page",
+      "description": "A modern, responsive landing page built with React, TypeScript, and Tailwind CSS",
+      "url": "https://your-domain.netlify.app/",
+      "applicationCategory": "WebApplication",
+      "operatingSystem": "Any",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      }
+    }
+    </script>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/index.jsx"></script>
+    
+    <!-- Service Worker Registration -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then((registration) => {
+              console.log('SW registered: ', registration);
+            })
+            .catch((registrationError) => {
+              console.log('SW registration failed: ', registrationError);
+            });
+        });
+      }
+    </script>
   </body>
 </html>
